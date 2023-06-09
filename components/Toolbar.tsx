@@ -8,6 +8,7 @@ import {
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
 import { ListNodeTagType } from "@lexical/list/LexicalListNode";
+import { HiDocumentText } from "react-icons/hi";
 
 type HeadingTagType = "h1" | "h2" | "h3";
 
@@ -65,11 +66,64 @@ function ListToolbarPlugin(): JSX.Element {
   );
 }
 
+function HeadingsToolbarPlugin(): JSX.Element {
+  const [editor] = useLexicalComposerContext();
+  const HeadingTags = ["h1", "h2", "h3"];
+
+  const onChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+    const tag = event.target.value as HeadingTagType;
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        $setBlocksType(selection, () => $createHeadingNode(tag));
+      }
+    });
+  };
+
+  return (
+    <select
+      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      onChange={onChange}>
+      {HeadingTags.map((tag) => (
+        <option value={tag} key={tag}>
+          {tag.toUpperCase()}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function HeadingProto(): JSX.Element {
+  const [editor] = useLexicalComposerContext();
+  const HeadingTags = ["H1", "H2", "H3"];
+  return (
+    <>
+      <div>
+        <select
+          id="style"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+          <option value="P" selected>
+            P
+          </option>
+          {HeadingTags.map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
+            </option>
+          ))}
+        </select>
+      </div>
+    </>
+  );
+}
+
 export default function ToolbarPlugin(): JSX.Element {
   return (
     <div className="flex items-center space-x-2">
       <HeadingToolbarPlugin />
+      <HeadingsToolbarPlugin />
       <ListToolbarPlugin />
+      <HeadingProto />
+      <HiDocumentText />
     </div>
   );
 }

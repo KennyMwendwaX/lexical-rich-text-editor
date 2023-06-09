@@ -62,28 +62,30 @@ export default function Index() {
   };
   return (
     <>
-      <div className="container mx-auto mb-2 px-5 py-20">
-        <LexicalComposer initialConfig={initialConfig}>
-          <ToolbarPlugin />
-          <RichTextPlugin
-            contentEditable={
-              <ContentEditable className="block h-96 w-3/5 rounded-lg border-0 bg-white p-3 text-sm text-gray-800 outline-none focus:ring-0 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400" />
-            }
-            placeholder={
-              <div className="absolute top-[132px] px-3">
-                Enter some text...
-              </div>
-            }
-            ErrorBoundary={LexicalErrorBoundary}
-          />
-          <MyOnChangePlugin
-            onChange={(editorState) => {
-              console.log(editorState);
-            }}
-          />
-          <HistoryPlugin />
-          <ListPlugin />
-        </LexicalComposer>
+      <div className="container mx-auto mb-2 px-5 pt-20">
+        <div className="mx-40">
+          <LexicalComposer initialConfig={initialConfig}>
+            <ToolbarPlugin />
+            <RichTextPlugin
+              contentEditable={
+                <ContentEditable className="block h-96 rounded-lg border-0 bg-white p-3 text-sm text-gray-800 outline-none focus:ring-0 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400" />
+              }
+              placeholder={
+                <div className="absolute top-[132px] px-3">
+                  Enter some text...
+                </div>
+              }
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+            <MyOnChangePlugin
+              onChange={(editorState) => {
+                console.log(editorState);
+              }}
+            />
+            <HistoryPlugin />
+            <ListPlugin />
+          </LexicalComposer>
+        </div>
       </div>
     </>
   );
