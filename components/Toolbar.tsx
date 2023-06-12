@@ -1,4 +1,9 @@
-import { $getSelection, $isRangeSelection } from "lexical";
+import {
+  $getSelection,
+  $isRangeSelection,
+  DEPRECATED_$isGridSelection,
+  $createParagraphNode,
+} from "lexical";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $createHeadingNode } from "@lexical/rich-text";
 import { $setBlocksType } from "@lexical/selection";
@@ -13,6 +18,22 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import { RxCaretDown } from "react-icons/rx";
 import { LuHeading1, LuHeading2, LuHeading3 } from "react-icons/lu";
 import { AiOutlineOrderedList, AiOutlineUnorderedList } from "react-icons/ai";
+import { BsTextParagraph } from "react-icons/bs";
+
+const blockTypeToBlockName = {
+  bullet: "Bulleted List",
+  check: "Check List",
+  code: "Code Block",
+  h1: "Heading 1",
+  h2: "Heading 2",
+  h3: "Heading 3",
+  h4: "Heading 4",
+  h5: "Heading 5",
+  h6: "Heading 6",
+  number: "Numbered List",
+  paragraph: "Normal",
+  quote: "Quote",
+};
 
 type HeadingTagType = "h1" | "h2" | "h3";
 
@@ -128,6 +149,12 @@ function ListToolbarPlugin(): JSX.Element {
 
 type ListTagType = "ul" | "ol";
 
+type IParagraphTag = {
+  id: number;
+  icon: JSX.Element;
+  name: string;
+};
+
 type IHeadingTag = {
   id: number;
   tag: HeadingTagType;
@@ -142,7 +169,11 @@ type IListTag = {
   name: string;
 };
 
-type ITag = IHeadingTag | IListTag;
+type ITag = IParagraphTag | IHeadingTag | IListTag;
+
+const PTag: IParagraphTag[] = [
+  { id: 1, icon: <BsTextParagraph />, name: "Normal" },
+];
 
 const HTags: ITag[] = [
   { id: 1, tag: "h1", icon: <LuHeading1 />, name: "Heading 1" },
@@ -151,13 +182,17 @@ const HTags: ITag[] = [
 ];
 
 const ListTags: ITag[] = [
-  { id: 4, tag: "ul", icon: <AiOutlineUnorderedList />, name: "Bullet List" },
-  { id: 5, tag: "ol", icon: <AiOutlineOrderedList />, name: "Numbered List" },
+  { id: 1, tag: "ul", icon: <AiOutlineUnorderedList />, name: "Bullet List" },
+  { id: 2, tag: "ol", icon: <AiOutlineOrderedList />, name: "Numbered List" },
 ];
 
-const Tags: ITag[] = [...HTags, ...ListTags];
+const Tags: ITag[] = [...PTag, ...HTags, ...ListTags];
 
-function HeadingProto(): JSX.Element {
+function HeadingProto({
+  blockType,
+}: {
+  blockType: keyof typeof blockTypeToBlockName;
+}): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [selectedOption, setSelectedOption] = useState<ITag>(Tags[0]);
   const [isOpen, setIsOpen] = useState(false);
@@ -166,20 +201,65 @@ function HeadingProto(): JSX.Element {
   const handleOptionClick = (tag: ITag) => {
     setSelectedOption(tag);
     setIsOpen(false);
+    // editor.update(() => {
+    //   const selection = $getSelection();
+    //   if (selection !== null && $isRangeSelection(selection)) {
+    //     if (tag.tag === "h1" || tag.tag === "h2" || tag.tag === "h3") {
+    //       $setBlocksType(selection, () => $createHeadingNode(tag.tag));
+    //       return;
+    //     } else if (tag.tag === "ol") {
+    //       editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    //       return;
+    //     } else if (tag.tag === "ul") {
+    //       editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+    //       return;
+    //     }
+    //   }
+    // });
+  };
+  const formatParagraph = () => {
     editor.update(() => {
       const selection = $getSelection();
-      if (selection !== null && $isRangeSelection(selection)) {
-        if (tag.tag === "h1" || tag.tag === "h2" || tag.tag === "h3") {
-          $setBlocksType(selection, () => $createHeadingNode(tag.tag));
-        } else if (tag.tag === "ol") {
-          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-          return;
-        } else if (tag.tag === "ul") {
-          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-          return;
-        }
+      if (
+        $isRangeSelection(selection) ||
+        DEPRECATED_$isGridSelection(selection)
+      ) {
+        $setBlocksType(selection, () => $createParagraphNode());
       }
     });
+    setIsOpen(false);
+  };
+  const formatHeading = (headingSize: HeadingTagType) => {
+    if (blockType !== headingSize) {
+      editor.update(() => {
+        const selection = $getSelection();
+        if (
+          $isRangeSelection(selection) ||
+          DEPRECATED_$isGridSelection(selection)
+        ) {
+          $setBlocksType(selection, () => $createHeadingNode(headingSize));
+        }
+      });
+    }
+    setIsOpen(false);
+  };
+
+  const formatCheckList = () => {
+    if (blockType !== "bullet") {
+      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+    } else {
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+    }
+    setIsOpen(false);
+  };
+
+  const formatNumberedList = () => {
+    if (blockType !== "number") {
+      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    } else {
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+    }
+    setIsOpen(false);
   };
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -210,19 +290,51 @@ function HeadingProto(): JSX.Element {
         </button>
         {isOpen && (
           <div className="absolute top-2 left-0 z-10 mt-10 bg-gray-50 divide-y divide-gray-100 rounded-lg shadow-sm">
-            <ul className="text-sm text-gray-700">
-              {Tags.map((tag) => (
-                <li key={tag.id}>
-                  <button
-                    type="button"
-                    onClick={() => handleOptionClick(tag)}
-                    className={`${
-                      selectedOption.id === tag.id ? "bg-gray-200" : ""
-                    } inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200`}>
-                    <div className="mr-2 text-lg">{tag.icon}</div> {tag.name}
-                  </button>
-                </li>
-              ))}
+            <ul className="py-1 text-sm text-gray-700">
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
+                  <BsTextParagraph className="w-5 h-5 mr-1" /> Normal
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
+                  <LuHeading1 className="w-5 h-5 mr-1" /> Heading 1
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
+                  <LuHeading2 className="w-5 h-5 mr-1" /> Heading 2
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
+                  <LuHeading3 className="w-5 h-5 mr-1" /> Heading 3
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
+                  <AiOutlineUnorderedList className="w-5 h-5 mr-1" /> Bulleted
+                  List
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
+                  <AiOutlineOrderedList className="w-5 h-5 mr-1" /> Numbered
+                  List
+                </button>
+              </li>
             </ul>
           </div>
         )}
@@ -232,11 +344,14 @@ function HeadingProto(): JSX.Element {
 }
 
 export default function ToolbarPlugin(): JSX.Element {
+  const [blockType, setBlockType] =
+    useState<keyof typeof blockTypeToBlockName>("paragraph");
+
   return (
     <div className="flex items-center space-x-2">
       <HeadingToolbarPlugin />
       <ListToolbarPlugin />
-      <HeadingProto />
+      <HeadingProto blockType={blockType} />
     </div>
   );
 }

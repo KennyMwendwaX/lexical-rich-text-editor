@@ -68,7 +68,7 @@ export default function Index() {
             <ToolbarPlugin />
             <RichTextPlugin
               contentEditable={
-                <ContentEditable className="block h-96 rounded-lg border-0 bg-white p-3 text-sm text-gray-800 outline-none focus:ring-0 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400" />
+                <ContentEditable className="block h-96 rounded-lg border-0 bg-white p-3 text-sm text-gray-800 outline-none focus:ring-0" />
               }
               placeholder={
                 <div className="absolute top-[132px] px-3">
