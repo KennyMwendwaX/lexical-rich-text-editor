@@ -244,7 +244,7 @@ function HeadingProto({
     setIsOpen(false);
   };
 
-  const formatCheckList = () => {
+  const formatBulletList = () => {
     if (blockType !== "bullet") {
       editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
     } else {
@@ -325,6 +325,7 @@ function HeadingProto({
               <li>
                 <button
                   type="button"
+                  onClick={formatBulletList}
                   className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
                   <AiOutlineUnorderedList className="w-5 h-5 mr-1" /> Bulleted
                   List
@@ -333,6 +334,7 @@ function HeadingProto({
               <li>
                 <button
                   type="button"
+                  onClick={formatNumberedList}
                   className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
                   <AiOutlineOrderedList className="w-5 h-5 mr-1" /> Numbered
                   List
