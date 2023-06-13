@@ -208,6 +208,7 @@ function HeadingProto({
         $setBlocksType(selection, () => $createParagraphNode());
       }
     });
+    setSelectedOption(Tags[0]);
     setIsOpen(false);
   };
   const formatHeading = (headingSize: HeadingTagType) => {
@@ -231,6 +232,7 @@ function HeadingProto({
     } else {
       editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
     }
+    setSelectedOption(Tags[4]);
     setIsOpen(false);
   };
 
@@ -240,6 +242,7 @@ function HeadingProto({
     } else {
       editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
     }
+    setSelectedOption(Tags[5]);
     setIsOpen(false);
   };
 
@@ -275,6 +278,7 @@ function HeadingProto({
               <li>
                 <button
                   type="button"
+                  onClick={formatParagraph}
                   className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
                   <BsTextParagraph className="w-5 h-5 mr-1" /> Normal
                 </button>
