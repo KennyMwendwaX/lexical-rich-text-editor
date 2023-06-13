@@ -198,25 +198,6 @@ function HeadingProto({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleOptionClick = (tag: ITag) => {
-    setSelectedOption(tag);
-    setIsOpen(false);
-    // editor.update(() => {
-    //   const selection = $getSelection();
-    //   if (selection !== null && $isRangeSelection(selection)) {
-    //     if (tag.tag === "h1" || tag.tag === "h2" || tag.tag === "h3") {
-    //       $setBlocksType(selection, () => $createHeadingNode(tag.tag));
-    //       return;
-    //     } else if (tag.tag === "ol") {
-    //       editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-    //       return;
-    //     } else if (tag.tag === "ul") {
-    //       editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-    //       return;
-    //     }
-    //   }
-    // });
-  };
   const formatParagraph = () => {
     editor.update(() => {
       const selection = $getSelection();
