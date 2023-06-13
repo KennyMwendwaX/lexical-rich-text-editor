@@ -301,6 +301,7 @@ function HeadingProto({
               <li>
                 <button
                   type="button"
+                  onClick={() => formatHeading("h1")}
                   className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
                   <LuHeading1 className="w-5 h-5 mr-1" /> Heading 1
                 </button>
@@ -308,6 +309,7 @@ function HeadingProto({
               <li>
                 <button
                   type="button"
+                  onClick={() => formatHeading("h2")}
                   className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
                   <LuHeading2 className="w-5 h-5 mr-1" /> Heading 2
                 </button>
@@ -315,6 +317,7 @@ function HeadingProto({
               <li>
                 <button
                   type="button"
+                  onClick={() => formatHeading("h3")}
                   className="inline-flex w-36 pl-2 items-center py-2 text-sm text-gray-700 hover:bg-gray-200">
                   <LuHeading3 className="w-5 h-5 mr-1" /> Heading 3
                 </button>
